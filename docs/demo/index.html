@@ -17,36 +17,51 @@
       .mark { display: grid; place-items: center; width: 28px; height: 28px; border: 2px solid var(--ink); color: var(--ink); background: var(--signal); font-size: 16px; transform: rotate(-7deg); }
       .topbar nav { display: flex; gap: 24px; color: var(--muted); font-size: 13px; }
       .topbar nav a { text-decoration: none; } .topbar nav a:hover { color: var(--signal-dark); }
-      .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 48px; align-items: end; margin-bottom: 72px; }
+      .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 32px; align-items: end; margin-bottom: 48px; }
       .eyebrow { margin: 0 0 18px; color: var(--signal-dark); font: 700 12px/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .1em; text-transform: uppercase; }
-      h1 { max-width: 760px; margin: 0; font-size: clamp(48px, 8vw, 94px); line-height: .91; letter-spacing: -.04em; font-weight: 850; text-wrap: balance; }
+      h1 { max-width: 760px; margin: 0; font-size: clamp(44px, 6.5vw, 76px); line-height: .93; letter-spacing: -.04em; font-weight: 850; text-wrap: balance; }
       .lede { max-width: 430px; margin: 0 0 3px; color: var(--muted); font-size: 17px; line-height: 1.55; }
-      .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
-      .button { cursor: pointer; padding: 11px 16px; border: 2px solid var(--ink); border-radius: 4px; color: var(--paper); background: var(--ink); font-weight: 750; }
+      .controls { display: grid; grid-template-columns: minmax(190px, 1.2fr) minmax(150px, 1fr) minmax(190px, 1.2fr) auto; gap: 10px; align-items: center; grid-column: 1 / -1; margin-top: 26px; }
+      .button { width: 100%; cursor: pointer; padding: 11px 16px; border: 2px solid var(--ink); border-radius: 4px; color: var(--paper); background: var(--ink); font-weight: 750; white-space: nowrap; }
       .button.secondary { color: var(--ink); background: transparent; } .button:hover { color: var(--ink); background: var(--signal); } .button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-      .session { display: grid; grid-template-columns: minmax(245px, .72fr) minmax(0, 1.28fr); gap: 20px; align-items: start; }
+      .session { display: grid; grid-template-columns: minmax(245px, .72fr) minmax(0, 1.28fr); gap: 20px; align-items: stretch; }
       .card { border: 2px solid var(--ink); border-radius: 4px; background: var(--panel); }
-      .terminal { grid-column: 2; grid-row: 1; min-height: 500px; overflow: hidden; background: var(--terminal); color: var(--terminal-ink); }
+      .terminal { display: flex; grid-column: 2; grid-row: 1; min-height: 500px; height: 100%; flex-direction: column; overflow: hidden; background: var(--terminal); color: var(--terminal-ink); }
       .terminal-head, .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; border-bottom: 2px solid var(--ink); }
       .terminal-head { border-color: #42464e; } .dots { display: flex; gap: 6px; } .dot { width: 8px; height: 8px; border: 1px solid var(--terminal-ink); border-radius: 50%; background: transparent; }
       .dot:nth-child(1) { background: var(--signal); } .dot:nth-child(2) { background: #e9c44d; } .dot:nth-child(3) { background: #91d27a; }
       .terminal-title { color: #aeb4bd; font: 12px ui-monospace, SFMono-Regular, monospace; }
-      .feed { min-height: 412px; max-height: 520px; overflow: auto; padding: 22px 18px 12px; font: 13px/1.65 ui-monospace, SFMono-Regular, monospace; }
-      .line { display: grid; grid-template-columns: 72px 1fr; gap: 14px; margin-bottom: 15px; animation: rise .35s both; }
-      .time { color: #747b87; } .line strong { color: #91d27a; font-weight: 500; } .line .call { color: #85a9ff; } .line .result { color: #f2c66d; }
+      .guide { display: grid; gap: 4px; padding: 18px; border-bottom: 2px solid #42464e; background: #202329; }
+      .guide-meta { color: #f2c66d; font: 11px ui-monospace, SFMono-Regular, monospace; letter-spacing: .06em; text-transform: uppercase; }
+      .guide-title { color: var(--terminal-ink); font-size: 16px; font-weight: 750; }
+      .guide-copy { max-width: 68ch; color: #aeb4bd; font-size: 13px; }
+      .feed { display: flex; min-height: 0; flex: 1; flex-direction: column; justify-content: flex-start; gap: 14px; overflow: auto; padding: 22px 18px 12px; font: 13px/1.65 ui-monospace, SFMono-Regular, monospace; }
+      .line { display: grid; grid-template-columns: 72px 1fr; gap: 14px; margin: 0; animation: rise .35s both; }
+      .time { color: #747b87; } .line strong { color: #91d27a; font-weight: 500; } .line .call { color: var(--terminal-ink); font-size: 14px; font-weight: 750; } .line .tool { color: #85a9ff; font-size: 12px; } .line .result { color: #f2c66d; }
       .prompt { display: flex; gap: 10px; padding: 15px 18px; border-top: 2px solid #42464e; color: #aeb4bd; } .prompt b { color: #91d27a; font-weight: 500; }
       .side { grid-column: 1; grid-row: 1; display: grid; gap: 20px; }
       .panel-body { padding: 18px; } .panel-head { font-size: 13px; font-weight: 750; }
       .assignment { display: flex; justify-content: space-between; align-items: start; gap: 16px; } .assignment h2 { margin: 0 0 5px; font-size: 20px; letter-spacing: -.03em; } .assignment p { margin: 0; color: var(--muted); font-size: 13px; }
+      .state-help { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
       .badge { flex: none; padding: 4px 7px; border: 1px solid var(--ink); border-radius: 999px; color: var(--ink); background: #91d27a; font: 11px ui-monospace, SFMono-Regular, monospace; }
       .stages { display: grid; gap: 2px; margin-top: 22px; } .stage { display: flex; align-items: center; gap: 10px; padding: 8px 7px; color: #81858a; font: 12px ui-monospace, SFMono-Regular, monospace; transition: .2s; }
-      .stage::before { content: ""; width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 50%; } .stage.done { color: #4b8c42; } .stage.done::before { background: currentColor; } .stage.current { color: var(--ink); background: #e9e5df; } .stage.current::before { box-shadow: 0 0 0 3px #ffc7ba; background: var(--signal); border-color: var(--signal-dark); }
-      .stage code { margin-left: auto; color: inherit; font-size: 10px; opacity: .75; } .mcp-list { display: grid; gap: 0; }
+      .stage::before { content: ""; width: 8px; height: 8px; flex: none; border: 1px solid currentColor; border-radius: 50%; } .stage.done { color: #4b8c42; } .stage.done::before { background: currentColor; } .stage.current { color: var(--ink); background: #e9e5df; } .stage.current::before { box-shadow: 0 0 0 3px #ffc7ba; background: var(--signal); border-color: var(--signal-dark); }
+      .stage-name { color: inherit; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; font-weight: 650; } .stage code { margin-left: auto; color: inherit; font-size: 10px; opacity: .75; }
+      .mcp-list { display: grid; gap: 0; }
       .mcp-item { display: grid; gap: 3px; padding: 11px 0; border-bottom: 1px solid var(--line); } .mcp-item:first-child { padding-top: 0; } .mcp-item:last-child { padding-bottom: 0; border: 0; } .mcp-item code { color: var(--blue); font-size: 12px; } .mcp-item span { color: var(--muted); font-size: 12px; }
+      .handoff { display: grid; gap: 16px; } .handoff-label { display: block; margin-bottom: 6px; color: var(--muted); font: 11px ui-monospace, SFMono-Regular, monospace; text-transform: uppercase; letter-spacing: .06em; }
+      .handoff-tool { display: block; padding: 14px; border: 1px solid var(--line); background: #f1efea; } .handoff-tool code { color: var(--blue); font: 700 13px ui-monospace, SFMono-Regular, monospace; }
+      .handoff-copy { margin: 0; color: var(--muted); font-size: 13px; } .handoff-next { padding-top: 14px; border-top: 1px solid var(--line); } .handoff-next strong { display: block; font-size: 14px; }
+      .graph-guide { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); gap: 48px; margin: 96px -28px 0; padding: 72px 28px 82px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); background: var(--panel); }
+      .graph-guide h2 { max-width: 360px; margin: 0; font-size: clamp(30px, 4vw, 48px); line-height: .98; letter-spacing: -.035em; text-wrap: balance; } .graph-intro { margin: 16px 0 0; color: var(--muted); font-size: 15px; }
+      .graph-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } .graph-block { padding: 18px; border: 2px solid var(--ink); background: var(--panel); } .graph-block-head { display: flex; align-items: baseline; gap: 12px; } .graph-block-head span { color: var(--signal-dark); font: 700 12px ui-monospace, SFMono-Regular, monospace; } .graph-block h3 { margin: 0; font-size: 18px; }
+      .graph-block p { min-height: 66px; margin: 14px 0; color: var(--muted); font-size: 13px; } .file-path { display: block; padding-top: 12px; border-top: 1px solid var(--line); color: var(--blue); font: 12px ui-monospace, SFMono-Regular, monospace; }
+      .graph-flow { margin: 14px 0 0; color: var(--ink); font: 12px/1.7 ui-monospace, SFMono-Regular, monospace; } .repo-index { display: grid; grid-template-columns: auto 1fr; gap: 12px 24px; align-items: baseline; margin-top: 16px; padding: 18px; border: 2px solid var(--ink); background: var(--ink); color: var(--paper); } .repo-index-label { color: #f2c66d; font: 11px ui-monospace, SFMono-Regular, monospace; text-transform: uppercase; letter-spacing: .06em; } .repo-index code { color: #91d27a; font: 12px/1.7 ui-monospace, SFMono-Regular, monospace; }
+      .support-block { margin-top: 42px; padding-top: 26px; border-top: 1px solid var(--line); } .support-block h3 { margin: 0; font-size: 20px; letter-spacing: -.02em; } .support-block > p { max-width: 70ch; margin: 8px 0 18px; color: var(--muted); font-size: 13px; } .provider-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; } .provider { padding: 13px; border: 1px solid var(--line); background: var(--paper); } .provider strong { display: block; font-size: 13px; } .provider code { display: block; margin-top: 5px; color: var(--blue); font: 11px/1.4 ui-monospace, SFMono-Regular, monospace; }
       footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 34px; color: var(--muted); font: 12px ui-monospace, SFMono-Regular, monospace; }
       @keyframes rise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
       @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
-      @media (max-width: 780px) { .shell { padding-inline: 18px; } .topbar { margin-bottom: 52px; } .topbar nav { display: none; } .hero { grid-template-columns: 1fr; gap: 24px; margin-bottom: 46px; } .session { grid-template-columns: 1fr; } .terminal { grid-column: 1; grid-row: 2; min-height: auto; } .side { grid-column: 1; grid-row: 1; } footer { flex-direction: column; gap: 8px; } }
+      @media (max-width: 780px) { .shell { padding-inline: 18px; } .topbar { margin-bottom: 52px; } .topbar nav { display: none; } .hero { grid-template-columns: 1fr; gap: 24px; margin-bottom: 46px; } .controls { grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; } .controls .button:first-child, .controls #reset { grid-column: 1 / -1; } .controls #reset { width: auto; justify-self: start; } .session { grid-template-columns: 1fr; } .terminal { grid-column: 1; grid-row: 2; min-height: auto; } .side { grid-column: 1; grid-row: 1; } .graph-guide { grid-template-columns: 1fr; gap: 32px; margin-inline: -18px; padding: 56px 18px 64px; } .graph-columns { grid-template-columns: 1fr; } .graph-block p { min-height: 0; } .repo-index { grid-template-columns: 1fr; gap: 8px; } .provider-list { grid-template-columns: 1fr 1fr; } footer { flex-direction: column; gap: 8px; } }
     </style>
   </head>
   <body>
@@ -60,12 +75,13 @@
         <p class="eyebrow">A field guide to MCP orchestration</p>
         <h1>Put the work<br />on rails.</h1>
         <p class="lede">Agent Graph gives every software assignment a visible route from intake to delivery — with the evidence to prove it arrived.</p>
-        <div class="controls"><button class="button" id="run" type="button">Run demo session</button><button class="button secondary" id="reset" type="button">Reset</button></div>
+        <div class="controls"><button class="button" id="run" type="button">Start walkthrough</button><button class="button secondary" id="next" type="button" disabled>Next step</button><button class="button secondary" id="auto" type="button">Autoplay slowly</button><button class="button secondary" id="reset" type="button">Reset</button></div>
       </section>
 
       <section class="session" aria-label="Pseudo agent session">
         <div class="card terminal">
           <div class="terminal-head"><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><span class="terminal-title">agent-session · local simulation</span></div>
+          <div class="guide" aria-live="polite"><span class="guide-meta" id="step-number">Step 0 of 10</span><strong class="guide-title" id="step-title">Start with the request</strong><span class="guide-copy" id="step-copy">This demo is paused so you can see what each MCP call does.</span></div>
           <div class="feed" id="feed" aria-live="polite"></div>
           <div class="prompt"><b>agent</b><span id="prompt">Ready when you are.</span></div>
         </div>
@@ -74,49 +90,95 @@
           <div class="card">
           <div class="panel-head"><span>Assignment state</span><span class="badge" id="state">intake</span></div>
             <div class="panel-body">
-              <div class="assignment"><div><h2>FEAT-4521</h2><p>Add a session replay to the docs</p></div></div>
+              <div class="assignment"><div><h2>FEAT-ANTIGRAVITY-20</h2><p>Add Antigravity 2.0 as an agent provider</p></div></div>
+              <p class="state-help">Each row is one gate. The highlighted row is where the agent is now.</p>
               <div class="stages" id="stages"></div>
             </div>
           </div>
           <div class="card">
-            <div class="panel-head"><span>What the agent calls</span><span style="color:var(--muted);font-size:12px">MCP</span></div>
-            <div class="panel-body mcp-list">
-              <div class="mcp-item"><code>start_assignment</code><span>create the tracked unit of work</span></div>
-              <div class="mcp-item"><code>add_acceptance_criterion</code><span>make “done” observable</span></div>
-              <div class="mcp-item"><code>advance_assignment</code><span>move through valid graph edges</span></div>
-              <div class="mcp-item"><code>record_verification</code><span>attach executable evidence</span></div>
-              <div class="mcp-item"><code>record_review → record_delivery</code><span>close the loop with confidence</span></div>
+            <div class="panel-head"><span>Current handoff</span><span style="color:var(--muted);font-size:12px">MCP</span></div>
+            <div class="panel-body handoff">
+              <div class="handoff-tool"><span class="handoff-label">The agent is using</span><code id="current-tool">—</code></div>
+              <p class="handoff-copy" id="current-tool-copy">Start the walkthrough to see why this call happens.</p>
+              <div class="handoff-next"><span class="handoff-label">Then</span><strong id="current-next">Read the step above and choose Next step.</strong></div>
             </div>
           </div>
         </aside>
+      </section>
+
+      <section class="graph-guide" aria-labelledby="graph-guide-title">
+        <div>
+          <p class="eyebrow">Under the hood</p>
+          <h2 id="graph-guide-title">The graphs are checked in.</h2>
+          <p class="graph-intro">The MCP server is the front door. The graph definitions and the code that enforces them live in the repository.</p>
+        </div>
+        <div>
+          <div class="graph-columns">
+            <article class="graph-block">
+              <div class="graph-block-head"><span>01</span><h3>Assignment graph</h3></div>
+              <p>One feature, bug, or investigation moves from request to completion. Failed checks can send it back to implementation.</p>
+              <code class="file-path">.agent/graph.yaml</code>
+              <div class="graph-flow">intake → classify → context<br />→ outcome → plan → implement<br />→ verify → review → deliver → complete</div>
+            </article>
+            <article class="graph-block">
+              <div class="graph-block-head"><span>02</span><h3>Batch graph</h3></div>
+              <p>Several assignments can be planned together, then worked one at a time so dependencies and order stay visible.</p>
+              <code class="file-path">.agent/graph.yaml</code>
+              <div class="graph-flow">intake → plan → execute<br />→ next ticket → complete</div>
+            </article>
+          </div>
+          <div class="repo-index"><span class="repo-index-label">Where to look</span><code>src/workflow.ts · assignment rules and repair loops<br />src/batch.ts · batch planning and sequential cursor<br />src/mcp.ts · tools exposed to MCP clients<br />.agent/state/ · local assignment and batch records</code></div>
+          <div class="support-block">
+            <h3>Supported AI workers</h3>
+            <p>Agent Graph is model-agnostic. It delegates to the provider CLIs below, so the exact model comes from each CLI’s configured account or the optional <code>--model</code> flag.</p>
+            <div class="provider-list">
+              <div class="provider"><strong>Claude Code</strong><code>claude</code></div>
+              <div class="provider"><strong>Codex</strong><code>codex</code></div>
+              <div class="provider"><strong>OpenCode</strong><code>opencode · provider/model</code></div>
+              <div class="provider"><strong>Antigravity</strong><code>agy · optional --model</code></div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <footer><span>Static demo · no credentials · no backend</span><span>Built for GitHub Pages</span></footer>
     </main>
     <script>
       const stages = ["intake", "classify", "context", "outcome", "plan", "implement", "verify", "review", "deliver", "complete"];
+      const stageLabels = { intake: "Receive the request", classify: "Understand the work", context: "Gather project context", outcome: "Define success", plan: "Plan the changes", implement: "Make the changes", verify: "Run the checks", review: "Review the result", deliver: "Hand off the work", complete: "Done with evidence" };
       const events = [
-        ["start_assignment", "FEAT-4521 created at intake"],
-        ["add_acceptance_criterion", "“A replay shows every MCP call and result.”"],
-        ["advance_assignment", "intake → classify → context"],
-        ["add_assumption", "The replay is static; no live credentials needed."],
-        ["advance_assignment", "context → outcome → plan"],
-        ["advance_assignment", "plan → implement"],
-        ["record_verification", "npm test · passed · 18 tests"],
-        ["record_review", "Final diff reviewed; no blockers."],
-        ["record_delivery", "Demo is ready for GitHub Pages."],
-        ["advance_assignment", "deliver → complete"]
+        ["start_assignment", "FEAT-ANTIGRAVITY-20 created for Antigravity 2.0 support.", "Capture the request", "The server creates one tracked assignment so the provider work has a stable identity."],
+        ["add_acceptance_criterion", "`agentctl run ... antigravity` runs a worker safely.", "Define what done means", "The acceptance criterion names the user-visible command that must work when the provider is complete."],
+        ["advance_assignment", "The graph records the task type and repository context.", "Build shared context", "Before editing, the agent identifies this as a feature and checks the existing provider adapters and tests."],
+        ["add_assumption", "Use `agy --print`; keep model and session flags optional.", "Make assumptions visible", "This decision keeps the adapter compatible with the official non-interactive CLI without adding unsafe bypass flags."],
+        ["advance_assignment", "Plan: registry → adapter → CLI flags → tests → docs.", "Choose the route", "The implementation plan names the files and checks needed to add one more interchangeable provider."],
+        ["advance_assignment", "The Antigravity adapter implementation starts.", "Do the work", "Only now does the assignment enter implementation, after the behavior and route are explicit."],
+        ["record_verification", "`npm test` · passed · 9 tests", "Attach evidence", "The test suite confirms provider parsing, command flags, and workflow behavior still work."],
+        ["record_review", "Checked `agy --print` and safety defaults; no blockers.", "Ask for a second look", "The final diff is reviewed for regressions, unsafe flags, missing tests, and scope creep."],
+        ["record_delivery", "Antigravity adapter, tests, and provider docs are ready.", "Package the result", "Delivery summarizes what changed, which checks passed, and what a maintainer can review next."],
+        ["advance_assignment", "Antigravity support is complete.", "Close the loop", "The assignment is complete because the requested command, implementation, tests, and review evidence are all present."]
       ];
       const feed = document.querySelector("#feed");
       const stageEl = document.querySelector("#stages");
       const stateEl = document.querySelector("#state");
       const promptEl = document.querySelector("#prompt");
+      const stepNumberEl = document.querySelector("#step-number");
+      const stepTitleEl = document.querySelector("#step-title");
+      const stepCopyEl = document.querySelector("#step-copy");
+      const currentToolEl = document.querySelector("#current-tool");
+      const currentToolCopyEl = document.querySelector("#current-tool-copy");
+      const currentNextEl = document.querySelector("#current-next");
+      const nextButton = document.querySelector("#next");
       let timer;
-      function drawStages(active) { stageEl.innerHTML = stages.map((stage, i) => `<div class="stage ${i < active ? "done" : ""} ${i === active ? "current" : ""}">${stage}<code>${i < active ? "done" : i === active ? "now" : "next"}</code></div>`).join(""); stateEl.textContent = stages[active]; }
-      function addLine(name, message, i) { const line = document.createElement("div"); line.className = "line"; line.style.animationDelay = `${i * 20}ms`; line.innerHTML = `<span class="time">${String(i + 1).padStart(2, "0")} · 10:2${i}</span><span><strong>${i === 0 ? "→" : "✓"} </strong><span class="call">${name}</span><br /><span class="result">${message}</span></span>`; feed.appendChild(line); feed.scrollTop = feed.scrollHeight; }
-      function reset() { clearInterval(timer); feed.innerHTML = ""; promptEl.textContent = "Ready when you are."; drawStages(0); }
-      function run() { reset(); let i = 0; promptEl.textContent = "Following the assignment graph…"; timer = setInterval(() => { if (i >= events.length) { clearInterval(timer); promptEl.textContent = "Session complete. Evidence attached."; return; } addLine(events[i][0], events[i][1], i); drawStages(Math.min(stages.length - 1, Math.floor((i + 1) * stages.length / events.length))); i++; }, 520); }
-      document.querySelector("#run").addEventListener("click", run); document.querySelector("#reset").addEventListener("click", reset); reset();
+      let cursor = 0;
+      function drawStages(active) { stageEl.innerHTML = stages.map((stage, i) => `<div class="stage ${i < active ? "done" : ""} ${i === active ? "current" : ""}"><span class="stage-name">${stageLabels[stage]}</span><code>${stage}</code></div>`).join(""); stateEl.textContent = stageLabels[stages[active]]; }
+      function addLine(name, message, title, i) { const line = document.createElement("div"); line.className = "line"; line.innerHTML = `<span class="time">${String(i + 1).padStart(2, "0")} · 10:2${i}</span><span><strong>${i === 0 ? "→" : "✓"} </strong><span class="call">${title}</span><br /><span class="tool">${name}</span><br /><span class="result">${message}</span></span>`; feed.appendChild(line); feed.scrollTop = feed.scrollHeight; }
+      function showStep(i) { const [name, message, title, copy] = events[i]; addLine(name, message, title, i); drawStages(Math.min(stages.length - 1, i)); stepNumberEl.textContent = `Step ${i + 1} of ${events.length}`; stepTitleEl.textContent = title; stepCopyEl.textContent = copy; currentToolEl.textContent = name; currentToolCopyEl.textContent = copy; currentNextEl.textContent = i === events.length - 1 ? "The assignment is complete." : events[i + 1][2]; promptEl.textContent = i === events.length - 1 ? "Session complete. Evidence attached." : "Read the explanation, then continue when ready."; cursor = i + 1; nextButton.disabled = cursor >= events.length; }
+      function reset() { clearInterval(timer); cursor = 0; feed.innerHTML = ""; promptEl.textContent = "Start the walkthrough when you are ready."; stepNumberEl.textContent = `Step 0 of ${events.length}`; stepTitleEl.textContent = "Start with the request"; stepCopyEl.textContent = "This demo is paused so you can see what each MCP call does."; currentToolEl.textContent = "—"; currentToolCopyEl.textContent = "Start the walkthrough to see why this call happens."; currentNextEl.textContent = "Read the step above and choose Next step."; nextButton.disabled = true; drawStages(0); }
+      function start() { reset(); showStep(0); nextButton.disabled = false; }
+      function next() { if (cursor < events.length) showStep(cursor); }
+      function autoplay() { if (cursor === 0) start(); clearInterval(timer); timer = setInterval(() => { if (cursor >= events.length) { clearInterval(timer); return; } showStep(cursor); }, 1800); }
+      document.querySelector("#run").addEventListener("click", start); nextButton.addEventListener("click", next); document.querySelector("#auto").addEventListener("click", autoplay); document.querySelector("#reset").addEventListener("click", reset); reset();
     </script>
   </body>
 </html>
