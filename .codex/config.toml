@@ -1,0 +1,7 @@
+[mcp_servers.agent-graph]
+command = "npm"
+args = ["run", "mcp"]
+cwd = "."
+
+[mcp_servers.agent-graph.env]
+AGENT_GRAPH_STATE_DIR = ".agent/state"
