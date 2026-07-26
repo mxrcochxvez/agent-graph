@@ -4,8 +4,22 @@ import { z } from "zod";
 
 import { listAgentProviders } from "./agents/registry.js";
 import { AGENT_MODES, AGENT_PROVIDERS } from "./agents/types.js";
+import {
+  addBatchNote,
+  advanceBatch,
+  getBatchNext,
+  recordBatchPlan,
+  skipBatchAssignment
+} from "./batch.js";
 import { runAssignmentAgent } from "./runner.js";
-import { createAssignment, getAssignment, listAssignments } from "./store.js";
+import {
+  createAssignment,
+  createBatch,
+  getAssignment,
+  getBatch,
+  listAssignments,
+  listBatches
+} from "./store.js";
 import {
   addAcceptanceCriterion,
   addAssumption,
@@ -15,7 +29,7 @@ import {
   recordReview,
   recordVerification
 } from "./workflow.js";
-import { TASK_TYPES, VERIFICATION_STATUSES, WORKFLOW_NODES } from "./types.js";
+import { BATCH_NODES, TASK_TYPES, VERIFICATION_STATUSES, WORKFLOW_NODES } from "./types.js";
 
 function textResult(value: unknown) {
   return {
@@ -27,7 +41,7 @@ const server = new McpServer(
   { name: "agent-graph", version: "0.2.0" },
   {
     instructions:
-      "Use this server to track substantial software assignments from intake through completion. Start an assignment, record acceptance criteria, advance one valid node at a time, record executable verification evidence, complete an independent review, and record delivery evidence. Failed verification or blocking review findings should return the assignment to implement. The run_assignment_agent tool can delegate a tracked assignment to Claude Code, Codex, or OpenCode; choose a different worker when independent planning or review is useful."
+      "Use this server to track substantial software assignments from intake through completion. Start an assignment, record acceptance criteria, advance one valid node at a time, record executable verification evidence, complete an independent review, and record delivery evidence. Failed verification or blocking review findings should return the assignment to implement. For multiple tickets, start a batch, use the batch planning loop (record_batch_plan / add_batch_note / advance_batch plan→plan) until the plan is solid, advance the batch to execute, then repeatedly call get_batch_next and run the full assignment graph on that single current ticket before moving on. The run_assignment_agent tool can delegate a tracked assignment to Claude Code, Codex, or OpenCode; choose a different worker when independent planning or review is useful."
   }
 );
 
@@ -182,6 +196,106 @@ server.registerTool(
     inputSchema: { id: z.string().min(1), summary: z.string().min(1) }
   },
   async ({ id, summary }) => textResult(await recordDelivery(id, summary))
+);
+
+server.registerTool(
+  "start_batch",
+  {
+    title: "Start batch",
+    description:
+      "Create a batch that groups ordered assignment IDs. Missing assignments are created at intake.",
+    inputSchema: {
+      id: z.string().min(1),
+      assignmentIds: z.array(z.string().min(1)).min(1),
+      summary: z.string().optional(),
+      type: z.enum([...TASK_TYPES]).optional()
+    }
+  },
+  async (input) => textResult(await createBatch(input))
+);
+
+server.registerTool(
+  "get_batch",
+  {
+    title: "Get batch",
+    description: "Read the complete current state for one batch.",
+    inputSchema: { id: z.string().min(1) },
+    annotations: { readOnlyHint: true }
+  },
+  async ({ id }) => textResult(await getBatch(id))
+);
+
+server.registerTool(
+  "list_batches",
+  {
+    title: "List batches",
+    description: "List locally tracked batches ordered by most recently updated.",
+    inputSchema: {},
+    annotations: { readOnlyHint: true }
+  },
+  async () => textResult(await listBatches())
+);
+
+server.registerTool(
+  "advance_batch",
+  {
+    title: "Advance batch",
+    description:
+      "Move a batch to one valid next node. Use plan→plan with a note for the planning loop. Execute requires a plan summary. Complete requires every assignment to be complete or skipped.",
+    inputSchema: {
+      id: z.string().min(1),
+      to: z.enum([...BATCH_NODES]),
+      note: z.string().optional()
+    }
+  },
+  async ({ id, to, note }) => textResult(await advanceBatch(id, to, note))
+);
+
+server.registerTool(
+  "record_batch_plan",
+  {
+    title: "Record batch plan",
+    description: "Record the batch-level plan summary required before execute.",
+    inputSchema: { id: z.string().min(1), summary: z.string().min(1) }
+  },
+  async ({ id, summary }) => textResult(await recordBatchPlan(id, summary))
+);
+
+server.registerTool(
+  "add_batch_note",
+  {
+    title: "Add batch plan note",
+    description: "Record planning context, ordering decisions, risks, or revision rationale.",
+    inputSchema: { id: z.string().min(1), note: z.string().min(1) }
+  },
+  async ({ id, note }) => textResult(await addBatchNote(id, note))
+);
+
+server.registerTool(
+  "get_batch_next",
+  {
+    title: "Get next batch assignment",
+    description:
+      "Return the current incomplete assignment for a batch in execute. Call this after finishing or skipping a ticket to pick up the next one.",
+    inputSchema: { id: z.string().min(1) }
+  },
+  async ({ id }) => textResult(await getBatchNext(id))
+);
+
+server.registerTool(
+  "skip_batch_assignment",
+  {
+    title: "Skip batch assignment",
+    description:
+      "Mark an assignment in the batch as skipped so the sequential loop can continue without completing it.",
+    inputSchema: {
+      id: z.string().min(1),
+      assignmentId: z.string().min(1),
+      reason: z.string().optional()
+    }
+  },
+  async ({ id, assignmentId, reason }) =>
+    textResult(await skipBatchAssignment(id, assignmentId, reason))
 );
 
 const transport = new StdioServerTransport();

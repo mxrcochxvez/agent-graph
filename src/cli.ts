@@ -2,8 +2,22 @@
 
 import { listAgentProviders, parseAgentProvider } from "./agents/registry.js";
 import { AGENT_MODES, type AgentMode } from "./agents/types.js";
+import {
+  addBatchNote,
+  advanceBatch,
+  getBatchNext,
+  recordBatchPlan,
+  skipBatchAssignment
+} from "./batch.js";
 import { runAssignmentAgent } from "./runner.js";
-import { createAssignment, getAssignment, listAssignments } from "./store.js";
+import {
+  createAssignment,
+  createBatch,
+  getAssignment,
+  getBatch,
+  listAssignments,
+  listBatches
+} from "./store.js";
 import {
   addAcceptanceCriterion,
   addAssumption,
@@ -14,9 +28,11 @@ import {
   recordVerification
 } from "./workflow.js";
 import {
+  BATCH_NODES,
   TASK_TYPES,
   VERIFICATION_STATUSES,
   WORKFLOW_NODES,
+  type BatchNode,
   type TaskType,
   type VerificationStatus,
   type WorkflowNode
@@ -30,6 +46,20 @@ function flagValue(args: string[], flag: string): string | undefined {
     throw new Error(`Missing value for ${flag}.`);
   }
   return value;
+}
+
+function flagValues(args: string[], flag: string): string[] {
+  const values: string[] = [];
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] !== flag) continue;
+    const value = args[index + 1];
+    if (!value || value.startsWith("--")) {
+      throw new Error(`Missing value for ${flag}.`);
+    }
+    values.push(value);
+    index += 1;
+  }
+  return values;
 }
 
 function requireValue(value: string | undefined, label: string): string {
@@ -51,6 +81,14 @@ function parseNode(value: string | undefined): WorkflowNode {
     throw new Error(`Invalid workflow node: ${node}`);
   }
   return node as WorkflowNode;
+}
+
+function parseBatchNode(value: string | undefined): BatchNode {
+  const node = requireValue(value, "batch node");
+  if (!BATCH_NODES.includes(node as BatchNode)) {
+    throw new Error(`Invalid batch node: ${node}. Expected one of: ${BATCH_NODES.join(", ")}`);
+  }
+  return node as BatchNode;
 }
 
 function parseAgentMode(value: string | undefined): AgentMode | undefined {
@@ -80,6 +118,19 @@ function parseVerificationStatus(value: string | undefined): VerificationStatus 
   return status as VerificationStatus;
 }
 
+function parseAssignmentIds(args: string[]): string[] {
+  const fromRepeated = flagValues(args, "--id");
+  const fromCsv = flagValue(args, "--ids");
+  const ids = [
+    ...fromRepeated,
+    ...(fromCsv ? fromCsv.split(",").map((value) => value.trim()).filter(Boolean) : [])
+  ];
+  if (ids.length === 0) {
+    throw new Error("Provide assignment IDs with --ids A,B,C and/or repeated --id <id>.");
+  }
+  return ids;
+}
+
 function print(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
 }
@@ -97,10 +148,89 @@ function usage(): string {
   deliver <id> <summary>
   finish <id>
   providers
-  run <id> <claude|codex|opencode> [--prompt <text>] [--cwd <path>]
+  run <id> <claude|codex|opencode|antigravity> [--prompt <text>] [--cwd <path>]
       [--mode <plan|implement|review>] [--model <model>] [--agent <name>]
       [--attach <opencode-url>] [--session <id>] [--timeout <milliseconds>]
+  batch start <id> --ids A,B,C [--id X] [--summary <text>] [--type <type>]
+  batch status [id]
+  batch plan <id> <summary>
+  batch note <id> <note>
+  batch advance <id> <intake|plan|execute|complete> [--note <text>]
+  batch next <id>
+  batch skip <id> <assignmentId> [--reason <text>]
 `;
+}
+
+async function handleBatch(subcommand: string | undefined, rest: string[]): Promise<void> {
+  switch (subcommand) {
+    case "start": {
+      const batchId = requireValue(rest[0], "batch ID");
+      const options = rest.slice(1);
+      print(
+        await createBatch({
+          id: batchId,
+          summary: flagValue(options, "--summary"),
+          assignmentIds: parseAssignmentIds(options),
+          type: parseTaskType(flagValue(options, "--type"))
+        })
+      );
+      return;
+    }
+    case "status": {
+      print(rest[0] ? await getBatch(rest[0]) : await listBatches());
+      return;
+    }
+    case "plan": {
+      print(
+        await recordBatchPlan(
+          requireValue(rest[0], "batch ID"),
+          requireValue(rest.slice(1).join(" "), "plan summary")
+        )
+      );
+      return;
+    }
+    case "note": {
+      print(
+        await addBatchNote(
+          requireValue(rest[0], "batch ID"),
+          requireValue(rest.slice(1).join(" "), "plan note")
+        )
+      );
+      return;
+    }
+    case "advance": {
+      print(
+        await advanceBatch(
+          requireValue(rest[0], "batch ID"),
+          parseBatchNode(rest[1]),
+          flagValue(rest, "--note")
+        )
+      );
+      return;
+    }
+    case "next": {
+      print(await getBatchNext(requireValue(rest[0], "batch ID")));
+      return;
+    }
+    case "skip": {
+      print(
+        await skipBatchAssignment(
+          requireValue(rest[0], "batch ID"),
+          requireValue(rest[1], "assignment ID"),
+          flagValue(rest, "--reason")
+        )
+      );
+      return;
+    }
+    case "help":
+    case "--help":
+    case "-h":
+    case undefined:
+      process.stdout.write(usage());
+      return;
+    default:
+      throw new Error(`Unknown batch command: ${subcommand}\n\n${usage()}`);
+  }
 }
 
 async function main(): Promise<void> {
@@ -220,6 +350,10 @@ async function main(): Promise<void> {
 
       print({ assignmentId, result });
       if (!result.success) process.exitCode = result.exitCode ?? 1;
+      return;
+    }
+    case "batch": {
+      await handleBatch(id, rest);
       return;
     }
     case "help":
