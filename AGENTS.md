@@ -19,6 +19,10 @@ Move assignments through these stages in order unless the graph explicitly permi
 
 Use the `agent-graph` MCP tools when available. Otherwise use `npm run agentctl -- ...`.
 
+## Batches
+
+When working multiple tickets in one session, start a batch. Use the batch planning loop (`plan` → `plan` with a revision note) until the plan summary is solid, then advance to `execute`. Work only the current ticket from `batch next` / `get_batch_next` through the full assignment graph before starting another. Skip a ticket only with an explicit reason when it should not block the batch.
+
 ## Required behavior
 
 - Inspect the repository, current branch, working tree, relevant issue, and nearby code before editing.

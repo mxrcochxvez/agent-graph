@@ -49,3 +49,40 @@ guards:
   deliver_to_complete:
     requires:
       - delivery_summary
+
+---
+name: software-batch
+version: 1
+initial: intake
+terminal: complete
+
+nodes:
+  intake:
+    purpose: Capture the batch identifier, ordered ticket list, and overall goal.
+    next: [plan]
+  plan:
+    purpose: Plan ordering, dependencies, risks, and verification strategy across tickets. Loop here until the plan is solid.
+    next: [plan, execute]
+  execute:
+    purpose: Sequentially drive each incomplete ticket through the assignment graph. Advance the cursor only after the current ticket is complete or skipped.
+    next: [execute, complete]
+  complete:
+    purpose: Mark the batch complete after every ticket is complete or skipped.
+    next: []
+
+guards:
+  intake_to_plan:
+    requires:
+      - at_least_one_assignment_id
+  plan_to_plan:
+    requires:
+      - planning_revision_note
+  plan_to_execute:
+    requires:
+      - batch_plan_summary
+  execute_to_execute:
+    requires:
+      - current_assignment_complete_or_skipped
+  execute_to_complete:
+    requires:
+      - all_assignments_complete_or_skipped
