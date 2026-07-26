@@ -17,7 +17,9 @@
       .mark { display: grid; place-items: center; width: 28px; height: 28px; border: 2px solid var(--ink); color: var(--ink); background: var(--signal); font-size: 16px; transform: rotate(-7deg); }
       .topbar nav { display: flex; gap: 24px; color: var(--muted); font-size: 13px; }
       .topbar nav a { text-decoration: none; } .topbar nav a:hover { color: var(--signal-dark); }
-      .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 32px; align-items: end; margin-bottom: 48px; }
+      .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 32px; align-items: end; margin-bottom: 48px; }
+      .graph-field { position: absolute; z-index: 0; inset: -28px -18px -44px; width: calc(100% + 36px); height: calc(100% + 72px); pointer-events: none; opacity: .68; }
+      .hero > :not(.graph-field) { position: relative; z-index: 1; }
       .eyebrow { margin: 0 0 18px; color: var(--signal-dark); font: 700 12px/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .1em; text-transform: uppercase; }
       h1 { max-width: 760px; margin: 0; font-size: clamp(44px, 6.5vw, 76px); line-height: .93; letter-spacing: -.04em; font-weight: 850; text-wrap: balance; }
       .lede { max-width: 430px; margin: 0 0 3px; color: var(--muted); font-size: 17px; line-height: 1.55; }
@@ -53,6 +55,8 @@
       .handoff-tool { display: block; padding: 14px; border: 1px solid var(--line); background: #f1efea; } .handoff-tool code { color: var(--blue); font: 700 13px ui-monospace, SFMono-Regular, monospace; }
       .handoff-copy { margin: 0; color: var(--muted); font-size: 13px; } .handoff-next { padding-top: 14px; border-top: 1px solid var(--line); } .handoff-next strong { display: block; font-size: 14px; }
       .graph-guide { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); gap: 48px; margin: 96px -28px 0; padding: 72px 28px 82px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); background: var(--panel); }
+      .graph-copy { position: relative; } .graph-copy > :not(.graph-field) { position: relative; z-index: 1; }
+      .graph-field--guide { inset: 118px 0 auto; width: 100%; height: 190px; opacity: .46; }
       .graph-guide h2 { max-width: 360px; margin: 0; font-size: clamp(30px, 4vw, 48px); line-height: .98; letter-spacing: -.035em; text-wrap: balance; } .graph-intro { margin: 16px 0 0; color: var(--muted); font-size: 15px; }
       .graph-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } .graph-block { padding: 18px; border: 2px solid var(--ink); background: var(--panel); } .graph-block-head { display: flex; align-items: baseline; gap: 12px; } .graph-block-head span { color: var(--signal-dark); font: 700 12px ui-monospace, SFMono-Regular, monospace; } .graph-block h3 { margin: 0; font-size: 18px; }
       .graph-block p { min-height: 66px; margin: 14px 0; color: var(--muted); font-size: 13px; } .file-path { display: block; padding-top: 12px; border-top: 1px solid var(--line); color: var(--blue); font: 12px ui-monospace, SFMono-Regular, monospace; }
@@ -72,6 +76,7 @@
       </header>
 
       <section class="hero">
+        <canvas class="graph-field" id="graph-field" aria-hidden="true"></canvas>
         <p class="eyebrow">A field guide to MCP orchestration</p>
         <h1>Put the work<br />on rails.</h1>
         <p class="lede">Agent Graph gives every software assignment a visible route from intake to delivery — with the evidence to prove it arrived.</p>
@@ -107,9 +112,10 @@
       </section>
 
       <section class="graph-guide" aria-labelledby="graph-guide-title">
-        <div>
+        <div class="graph-copy">
           <p class="eyebrow">Under the hood</p>
           <h2 id="graph-guide-title">The graphs are checked in.</h2>
+          <canvas class="graph-field graph-field--guide" id="guide-field" aria-hidden="true"></canvas>
           <p class="graph-intro">The MCP server is the front door. The graph definitions and the code that enforces them live in the repository.</p>
         </div>
         <div>
@@ -169,8 +175,11 @@
       const currentToolCopyEl = document.querySelector("#current-tool-copy");
       const currentNextEl = document.querySelector("#current-next");
       const nextButton = document.querySelector("#next");
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
       let timer;
       let cursor = 0;
+      function setupGraphField(graphField, phase) { const graphContext = graphField.getContext("2d"); const graphNodes = Array.from({ length: 10 }, (_, index) => ({ x: (index * 97 + phase * 41) % 620, y: 30 + ((index * 53 + phase * 29) % 150), speedX: (index % 2 ? -1 : 1) * (0.06 + (index % 3) * 0.025), speedY: (index % 3 ? 1 : -1) * (0.04 + (index % 2) * 0.02), radius: index % 4 === 0 ? 3.5 : 2.2 })); function resizeGraphField() { const bounds = graphField.getBoundingClientRect(); const ratio = Math.min(window.devicePixelRatio || 1, 2); graphField.width = Math.max(1, Math.floor(bounds.width * ratio)); graphField.height = Math.max(1, Math.floor(bounds.height * ratio)); graphContext.setTransform(ratio, 0, 0, ratio, 0, 0); } function drawGraphField(timestamp = 0) { const bounds = graphField.getBoundingClientRect(); const time = timestamp * 0.06; graphContext.clearRect(0, 0, bounds.width, bounds.height); const points = graphNodes.map((node) => ({ x: (node.x + time * node.speedX + bounds.width) % bounds.width, y: (node.y + time * node.speedY + bounds.height) % bounds.height, radius: node.radius })); points.forEach((point, index) => points.slice(index + 1).forEach((other) => { const distance = Math.hypot(point.x - other.x, point.y - other.y); if (distance < 190) { graphContext.strokeStyle = `rgba(40, 87, 216, ${Math.max(0, .25 - distance / 1050)})`; graphContext.lineWidth = 1; graphContext.beginPath(); graphContext.moveTo(point.x, point.y); graphContext.lineTo(other.x, other.y); graphContext.stroke(); } })); points.forEach((point) => { graphContext.fillStyle = point.radius > 3 ? "#ff5b35" : "#2857d8"; graphContext.beginPath(); graphContext.arc(point.x, point.y, point.radius, 0, Math.PI * 2); graphContext.fill(); }); if (!reduceMotion.matches) window.requestAnimationFrame(drawGraphField); } resizeGraphField(); window.addEventListener("resize", resizeGraphField); if (reduceMotion.matches) drawGraphField(); else window.requestAnimationFrame(drawGraphField); }
+      document.querySelectorAll(".graph-field").forEach((field, index) => setupGraphField(field, index));
       function drawStages(active) { stageEl.innerHTML = stages.map((stage, i) => `<div class="stage ${i < active ? "done" : ""} ${i === active ? "current" : ""}"><span class="stage-name">${stageLabels[stage]}</span><code>${stage}</code></div>`).join(""); stateEl.textContent = stageLabels[stages[active]]; }
       function addLine(name, message, title, i) { const line = document.createElement("div"); line.className = "line"; line.innerHTML = `<span class="time">${String(i + 1).padStart(2, "0")} · 10:2${i}</span><span><strong>${i === 0 ? "→" : "✓"} </strong><span class="call">${title}</span><br /><span class="tool">${name}</span><br /><span class="result">${message}</span></span>`; feed.appendChild(line); feed.scrollTop = feed.scrollHeight; }
       function showStep(i) { const [name, message, title, copy] = events[i]; addLine(name, message, title, i); drawStages(Math.min(stages.length - 1, i)); stepNumberEl.textContent = `Step ${i + 1} of ${events.length}`; stepTitleEl.textContent = title; stepCopyEl.textContent = copy; currentToolEl.textContent = name; currentToolCopyEl.textContent = copy; currentNextEl.textContent = i === events.length - 1 ? "The assignment is complete." : events[i + 1][2]; promptEl.textContent = i === events.length - 1 ? "Session complete. Evidence attached." : "Read the explanation, then continue when ready."; cursor = i + 1; nextButton.disabled = cursor >= events.length; }
