@@ -1,7 +1,7 @@
 {
   "name": "@mxrcochxvez/agent-graph",
-  "version": "0.1.0",
-  "description": "Portable software-engineering assignment graph for MCP-compatible coding agents",
+  "version": "0.2.0",
+  "description": "Portable software-engineering assignment graph for interchangeable coding agents",
   "type": "module",
   "bin": {
     "agentctl": "dist/src/cli.js"

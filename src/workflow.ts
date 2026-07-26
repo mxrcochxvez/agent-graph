@@ -1,5 +1,6 @@
 import { getAssignment, saveAssignment } from "./store.js";
 import type {
+  AgentRunRecord,
   Assignment,
   VerificationStatus,
   WorkflowNode
@@ -146,6 +147,14 @@ export async function recordDelivery(id: string, summary: string): Promise<Assig
     throw new Error("Delivery summary cannot be empty.");
   }
   assignment.deliverySummary = value;
+  await saveAssignment(assignment);
+  return assignment;
+}
+
+export async function recordAgentRun(id: string, run: AgentRunRecord): Promise<Assignment> {
+  const assignment = await getAssignment(id);
+  assignment.agentRuns ??= [];
+  assignment.agentRuns.push(run);
   await saveAssignment(assignment);
   return assignment;
 }

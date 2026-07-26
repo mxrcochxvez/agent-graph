@@ -1,3 +1,5 @@
+import type { AgentMode, AgentProvider } from "./agents/types.js";
+
 export const WORKFLOW_NODES = [
   "intake",
   "classify",
@@ -41,6 +43,17 @@ export interface HistoryEntry {
   note?: string;
 }
 
+export interface AgentRunRecord {
+  provider: AgentProvider;
+  mode: AgentMode;
+  model?: string;
+  success: boolean;
+  exitCode: number | null;
+  startedAt: string;
+  finishedAt: string;
+  outputSummary?: string;
+}
+
 export interface Assignment {
   id: string;
   type: TaskType;
@@ -51,6 +64,7 @@ export interface Assignment {
   assumptions: string[];
   notes: string[];
   verification: Record<string, VerificationRecord>;
+  agentRuns?: AgentRunRecord[];
   reviewSummary?: string;
   deliverySummary?: string;
   createdAt: string;
