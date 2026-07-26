@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#10151f" />
+    <title>Agent Graph · MCP session demo</title>
+    <style>
+      :root { color-scheme: dark; --ink: #f4f0e8; --muted: #9ca7b8; --panel: #151c28; --line: #2a3545; --blue: #81b8ff; --mint: #8ee4c0; --orange: #ffb86b; }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-width: 320px; background: #0d121b; color: var(--ink); font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; }
+      body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .35; background: radial-gradient(circle at 10% 0%, #213b5e 0, transparent 35%), radial-gradient(circle at 90% 10%, #203c39 0, transparent 30%); }
+      a { color: var(--blue); }
+      button { font: inherit; }
+      .shell { position: relative; max-width: 1160px; margin: 0 auto; padding: 28px 22px 56px; }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 62px; }
+      .brand { display: flex; align-items: center; gap: 11px; color: var(--ink); font-weight: 700; letter-spacing: .02em; }
+      .mark { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #5e8ab4; border-radius: 9px; color: var(--mint); background: #162436; font-size: 17px; }
+      .topbar nav { display: flex; gap: 22px; color: var(--muted); font-size: 13px; }
+      .topbar nav a { color: inherit; text-decoration: none; }
+      .topbar nav a:hover { color: var(--ink); }
+      .hero { max-width: 790px; margin-bottom: 36px; }
+      .eyebrow { margin: 0 0 14px; color: var(--mint); font: 700 12px/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .14em; text-transform: uppercase; }
+      h1 { max-width: 720px; margin: 0; font-size: clamp(38px, 7vw, 72px); line-height: .98; letter-spacing: -.06em; font-weight: 700; }
+      .lede { max-width: 650px; margin: 22px 0 0; color: var(--muted); font-size: 17px; }
+      .session { display: grid; grid-template-columns: minmax(0, 1.28fr) minmax(290px, .72fr); gap: 18px; align-items: start; }
+      .card { border: 1px solid var(--line); border-radius: 18px; background: color-mix(in srgb, var(--panel) 93%, transparent); box-shadow: 0 18px 60px #0003; }
+      .terminal { min-height: 500px; overflow: hidden; }
+      .terminal-head, .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 20px; border-bottom: 1px solid var(--line); }
+      .dots { display: flex; gap: 6px; }
+      .dot { width: 9px; height: 9px; border-radius: 50%; background: #495769; }
+      .dot:nth-child(1) { background: #ed756d; } .dot:nth-child(2) { background: #e9bd70; } .dot:nth-child(3) { background: #72c593; }
+      .terminal-title { color: var(--muted); font: 12px ui-monospace, SFMono-Regular, monospace; }
+      .feed { min-height: 412px; max-height: 520px; overflow: auto; padding: 22px 20px 12px; font: 13px/1.6 ui-monospace, SFMono-Regular, monospace; }
+      .line { display: grid; grid-template-columns: 82px 1fr; gap: 16px; margin-bottom: 15px; animation: rise .35s both; }
+      .time { color: #657389; } .line strong { color: var(--mint); font-weight: 500; } .line .call { color: var(--blue); } .line .result { color: var(--orange); }
+      .prompt { display: flex; gap: 10px; padding: 15px 20px; border-top: 1px solid var(--line); color: var(--muted); }
+      .prompt b { color: var(--mint); font-weight: 500; }
+      .side { display: grid; gap: 18px; }
+      .panel-body { padding: 20px; }
+      .assignment { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+      .assignment h2 { margin: 0 0 5px; font-size: 19px; letter-spacing: -.02em; }
+      .assignment p { margin: 0; color: var(--muted); font-size: 13px; }
+      .badge { flex: none; padding: 4px 8px; border: 1px solid #34745e; border-radius: 999px; color: var(--mint); background: #153228; font: 11px ui-monospace, SFMono-Regular, monospace; }
+      .stages { display: grid; gap: 7px; margin-top: 20px; }
+      .stage { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: #6e7d91; font-size: 12px; transition: .25s; }
+      .stage::before { content: ""; width: 7px; height: 7px; border: 1px solid #5a687b; border-radius: 50%; }
+      .stage.done { color: var(--mint); background: #142720; } .stage.done::before { border-color: var(--mint); background: var(--mint); }
+      .stage.current { color: var(--ink); background: #1d2b3d; } .stage.current::before { border-color: var(--blue); box-shadow: 0 0 0 3px #305075; }
+      .stage code { margin-left: auto; color: #718098; font-size: 11px; }
+      .mcp-list { display: grid; gap: 12px; }
+      .mcp-item { display: grid; gap: 2px; padding-bottom: 12px; border-bottom: 1px solid #25303f; }
+      .mcp-item:last-child { padding-bottom: 0; border: 0; }
+      .mcp-item code { color: var(--blue); font-size: 12px; } .mcp-item span { color: var(--muted); font-size: 12px; }
+      .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+      .button { cursor: pointer; padding: 10px 14px; border: 1px solid #45698d; border-radius: 9px; color: #09131f; background: var(--blue); font-weight: 700; }
+      .button.secondary { border-color: var(--line); color: var(--ink); background: transparent; } .button:hover { filter: brightness(1.08); }
+      footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 34px; color: #718098; font-size: 12px; }
+      @keyframes rise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+      @media (max-width: 780px) { .topbar { margin-bottom: 42px; } .topbar nav { display: none; } .session { grid-template-columns: 1fr; } .terminal { min-height: auto; } footer { flex-direction: column; } }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="../../"><span class="mark">✦</span><span>agent-graph</span></a>
+        <nav aria-label="Project links"><a href="../../README.md">Read the docs</a><a href="https://github.com/mxrcochxvez/agent-graph">GitHub ↗</a></nav>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">MCP session / simulated</p>
+        <h1>One assignment.<br />A clear path to done.</h1>
+        <p class="lede">Watch an agent use the Agent Graph MCP server to capture a request, make its plan explicit, verify the work, and deliver with evidence.</p>
+        <div class="controls"><button class="button" id="run" type="button">Run demo session</button><button class="button secondary" id="reset" type="button">Reset</button></div>
+      </section>
+
+      <section class="session" aria-label="Pseudo agent session">
+        <div class="card terminal">
+          <div class="terminal-head"><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><span class="terminal-title">agent-session · local simulation</span></div>
+          <div class="feed" id="feed" aria-live="polite"></div>
+          <div class="prompt"><b>agent</b><span id="prompt">Ready when you are.</span></div>
+        </div>
+
+        <aside class="side">
+          <div class="card">
+            <div class="panel-head"><span>Assignment state</span><span class="badge" id="state">intake</span></div>
+            <div class="panel-body">
+              <div class="assignment"><div><h2>FEAT-4521</h2><p>Add a session replay to the docs</p></div></div>
+              <div class="stages" id="stages"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="panel-head"><span>What the agent calls</span><span style="color:var(--muted);font-size:12px">MCP</span></div>
+            <div class="panel-body mcp-list">
+              <div class="mcp-item"><code>start_assignment</code><span>create the tracked unit of work</span></div>
+              <div class="mcp-item"><code>add_acceptance_criterion</code><span>make “done” observable</span></div>
+              <div class="mcp-item"><code>advance_assignment</code><span>move through valid graph edges</span></div>
+              <div class="mcp-item"><code>record_verification</code><span>attach executable evidence</span></div>
+              <div class="mcp-item"><code>record_review → record_delivery</code><span>close the loop with confidence</span></div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <footer><span>Static demo · no credentials · no backend</span><span>Built for GitHub Pages</span></footer>
+    </main>
+    <script>
+      const stages = ["intake", "classify", "context", "outcome", "plan", "implement", "verify", "review", "deliver", "complete"];
+      const events = [
+        ["start_assignment", "FEAT-4521 created at intake"],
+        ["add_acceptance_criterion", "“A replay shows every MCP call and result.”"],
+        ["advance_assignment", "intake → classify → context"],
+        ["add_assumption", "The replay is static; no live credentials needed."],
+        ["advance_assignment", "context → outcome → plan"],
+        ["advance_assignment", "plan → implement"],
+        ["record_verification", "npm test · passed · 18 tests"],
+        ["record_review", "Final diff reviewed; no blockers."],
+        ["record_delivery", "Demo is ready for GitHub Pages."],
+        ["advance_assignment", "deliver → complete"]
+      ];
+      const feed = document.querySelector("#feed");
+      const stageEl = document.querySelector("#stages");
+      const stateEl = document.querySelector("#state");
+      const promptEl = document.querySelector("#prompt");
+      let timer;
+      function drawStages(active) { stageEl.innerHTML = stages.map((stage, i) => `<div class="stage ${i < active ? "done" : ""} ${i === active ? "current" : ""}">${stage}<code>${i < active ? "done" : i === active ? "now" : "next"}</code></div>`).join(""); stateEl.textContent = stages[active]; }
+      function addLine(name, message, i) { const line = document.createElement("div"); line.className = "line"; line.style.animationDelay = `${i * 20}ms`; line.innerHTML = `<span class="time">${String(i + 1).padStart(2, "0")} · 10:2${i}</span><span><strong>${i === 0 ? "→" : "✓"} </strong><span class="call">${name}</span><br /><span class="result">${message}</span></span>`; feed.appendChild(line); feed.scrollTop = feed.scrollHeight; }
+      function reset() { clearInterval(timer); feed.innerHTML = ""; promptEl.textContent = "Ready when you are."; drawStages(0); }
+      function run() { reset(); let i = 0; promptEl.textContent = "Following the assignment graph…"; timer = setInterval(() => { if (i >= events.length) { clearInterval(timer); promptEl.textContent = "Session complete. Evidence attached."; return; } addLine(events[i][0], events[i][1], i); drawStages(Math.min(stages.length - 1, Math.floor((i + 1) * stages.length / events.length))); i++; }, 520); }
+      document.querySelector("#run").addEventListener("click", run); document.querySelector("#reset").addEventListener("click", reset); reset();
+    </script>
+  </body>
+</html>
