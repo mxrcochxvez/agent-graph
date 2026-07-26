@@ -78,3 +78,34 @@ export interface StartAssignmentInput {
   summary?: string;
   branch?: string;
 }
+
+export const BATCH_NODES = ["intake", "plan", "execute", "complete"] as const;
+export type BatchNode = (typeof BATCH_NODES)[number];
+
+export interface BatchHistoryEntry {
+  from?: BatchNode;
+  to: BatchNode;
+  at: string;
+  note?: string;
+}
+
+export interface Batch {
+  id: string;
+  summary: string;
+  assignmentIds: string[];
+  skippedAssignmentIds: string[];
+  currentNode: BatchNode;
+  currentAssignmentId?: string;
+  planSummary?: string;
+  planNotes: string[];
+  createdAt: string;
+  updatedAt: string;
+  history: BatchHistoryEntry[];
+}
+
+export interface StartBatchInput {
+  id: string;
+  summary?: string;
+  assignmentIds: string[];
+  type?: TaskType;
+}

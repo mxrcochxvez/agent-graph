@@ -7,3 +7,5 @@ dist/
 !.env.example
 .agent/state/*.json
 !.agent/state/.gitkeep
+.agent/state/batches/*.json
+!.agent/state/batches/.gitkeep
