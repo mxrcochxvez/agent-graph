@@ -1,0 +1,29 @@
+{
+  "name": "@mxrcochxvez/agent-graph",
+  "version": "0.1.0",
+  "description": "Portable software-engineering assignment graph for MCP-compatible coding agents",
+  "type": "module",
+  "bin": {
+    "agentctl": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/**/*.test.ts",
+    "agentctl": "tsx src/cli.ts",
+    "mcp": "tsx src/mcp.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^6.0.0"
+  },
+  "license": "MIT"
+}
