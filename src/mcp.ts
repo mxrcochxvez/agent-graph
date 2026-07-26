@@ -2,6 +2,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
+import { listAgentProviders } from "./agents/registry.js";
+import { AGENT_MODES, AGENT_PROVIDERS } from "./agents/types.js";
+import { runAssignmentAgent } from "./runner.js";
 import { createAssignment, getAssignment, listAssignments } from "./store.js";
 import {
   addAcceptanceCriterion,
@@ -21,10 +24,10 @@ function textResult(value: unknown) {
 }
 
 const server = new McpServer(
-  { name: "agent-graph", version: "0.1.0" },
+  { name: "agent-graph", version: "0.2.0" },
   {
     instructions:
-      "Use this server to track substantial software assignments from intake through completion. Start an assignment, record acceptance criteria, advance one valid node at a time, record executable verification evidence, complete an independent review, and record delivery evidence. Failed verification or blocking review findings should return the assignment to implement."
+      "Use this server to track substantial software assignments from intake through completion. Start an assignment, record acceptance criteria, advance one valid node at a time, record executable verification evidence, complete an independent review, and record delivery evidence. Failed verification or blocking review findings should return the assignment to implement. The run_assignment_agent tool can delegate a tracked assignment to Claude Code, Codex, or OpenCode; choose a different worker when independent planning or review is useful."
   }
 );
 
@@ -63,6 +66,39 @@ server.registerTool(
     annotations: { readOnlyHint: true }
   },
   async () => textResult(await listAssignments())
+);
+
+server.registerTool(
+  "list_agent_providers",
+  {
+    title: "List agent providers",
+    description: "Check whether the Claude Code, Codex, and OpenCode CLIs are available.",
+    inputSchema: {},
+    annotations: { readOnlyHint: true }
+  },
+  async () => textResult(await listAgentProviders())
+);
+
+server.registerTool(
+  "run_assignment_agent",
+  {
+    title: "Run assignment with an agent",
+    description:
+      "Delegate a tracked assignment to Claude Code, Codex, or OpenCode. The selected CLI runs in the requested working directory and the result is recorded in assignment history.",
+    inputSchema: {
+      id: z.string().min(1),
+      provider: z.enum([...AGENT_PROVIDERS]),
+      prompt: z.string().optional(),
+      cwd: z.string().optional(),
+      mode: z.enum([...AGENT_MODES]).optional(),
+      model: z.string().optional(),
+      agent: z.string().optional(),
+      serverUrl: z.string().url().optional(),
+      sessionId: z.string().optional(),
+      timeoutMs: z.number().int().positive().optional()
+    }
+  },
+  async (input) => textResult(await runAssignmentAgent(input))
 );
 
 server.registerTool(
