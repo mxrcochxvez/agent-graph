@@ -1,0 +1,51 @@
+name: software-assignment
+version: 1
+initial: intake
+terminal: complete
+
+nodes:
+  intake:
+    purpose: Capture the request, assignment identifier, and initial constraints.
+    next: [classify]
+  classify:
+    purpose: Classify the task as feature, bugfix, investigation, refactor, documentation, or review.
+    next: [context]
+  context:
+    purpose: Inspect the issue, repository, relevant code, documentation, history, and current branch.
+    next: [outcome]
+  outcome:
+    purpose: Record acceptance criteria, assumptions, and the definition of done.
+    next: [plan]
+  plan:
+    purpose: Identify files, implementation steps, risks, and verification strategy.
+    next: [implement]
+  implement:
+    purpose: Make the smallest coherent change that satisfies the recorded outcome.
+    next: [verify]
+  verify:
+    purpose: Run automated and manual checks and record evidence.
+    next: [review, implement]
+  review:
+    purpose: Independently inspect the final diff for correctness, regressions, scope, and missing evidence.
+    next: [deliver, implement]
+  deliver:
+    purpose: Produce a PR-ready summary with changes, verification, risks, and remaining steps.
+    next: [complete]
+  complete:
+    purpose: Mark the assignment complete after delivery evidence exists.
+    next: []
+
+guards:
+  outcome_to_plan:
+    requires:
+      - at_least_one_acceptance_criterion
+  verify_to_review:
+    requires:
+      - at_least_one_passing_verification
+      - no_failing_verifications
+  review_to_deliver:
+    requires:
+      - review_summary
+  deliver_to_complete:
+    requires:
+      - delivery_summary
