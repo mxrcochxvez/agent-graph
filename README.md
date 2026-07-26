@@ -42,7 +42,7 @@ Defined in `.agent/graph.yaml` and enforced by `src/workflow.ts` / `src/batch.ts
 - Project-scoped MCP configuration for Claude Code and Codex
 - A TypeScript MCP server exposing assignment workflow and delegation tools
 - An `agentctl` CLI for humans and agents
-- Interchangeable Claude Code, Codex, and OpenCode worker adapters
+- Interchangeable Claude Code, Codex, OpenCode, and Antigravity worker adapters
 - File-backed assignment and batch state under `.agent/state/`
 - A declarative assignment/batch graph and task playbooks
 - CI checks for TypeScript and workflow tests
@@ -127,6 +127,11 @@ OpenCode:
 
 ```bash
 npm run agentctl -- run ENG-4521 opencode --cwd ../target-repository
+```
+
+Antigravity 2.0:
+
+```bash
 npm run agentctl -- run ENG-4521 antigravity --cwd ../target-repository
 ```
 
@@ -144,6 +149,8 @@ npm run agentctl -- run ENG-4521 codex \
 ```
 
 Planning and review runs are read-only for Codex. Claude planning uses Claude Code's plan permission mode. No adapter enables unsafe permission bypass flags by default.
+
+Antigravity runs use the official `agy --print` non-interactive mode. Its `--model`, `--agent`, and `--conversation` options map to the corresponding Agent Graph run flags; use `--mode plan` for planning runs.
 
 ### OpenCode Go and OpenChamber
 

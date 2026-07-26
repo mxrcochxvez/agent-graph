@@ -86,7 +86,8 @@ server.registerTool(
   "list_agent_providers",
   {
     title: "List agent providers",
-    description: "Check whether the Claude Code, Codex, and OpenCode CLIs are available.",
+    description:
+      "Check whether the Claude Code, Codex, OpenCode, and Antigravity (agy) CLIs are available.",
     inputSchema: {},
     annotations: { readOnlyHint: true }
   },
@@ -98,7 +99,7 @@ server.registerTool(
   {
     title: "Run assignment with an agent",
     description:
-      "Delegate a tracked assignment to Claude Code, Codex, or OpenCode. The selected CLI runs in the requested working directory and the result is recorded in assignment history.",
+      "Delegate a tracked assignment to Claude Code, Codex, OpenCode, or Antigravity. The selected CLI runs in the requested working directory and the result is recorded in assignment history.",
     inputSchema: {
       id: z.string().min(1),
       provider: z.enum([...AGENT_PROVIDERS]),

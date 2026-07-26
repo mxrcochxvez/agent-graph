@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   buildClaudeInvocation,
   buildCodexInvocation,
+  buildAntigravityInvocation,
   buildOpenCodeInvocation
 } from "../src/agents/adapters.js";
 import { parseAgentProvider } from "../src/agents/registry.js";
@@ -89,7 +90,34 @@ test("OpenCode can attach to the server shared with OpenChamber", () => {
   ]);
 });
 
+test("Antigravity uses print mode and supports its session controls", () => {
+  const invocation = buildAntigravityInvocation(
+    request({
+      mode: "plan",
+      model: "Gemini 3.1 Pro (High)",
+      agent: "reviewer",
+      sessionId: "agy-conversation"
+    }),
+    "agy-test"
+  );
+
+  assert.equal(invocation.command, "agy-test");
+  assert.deepEqual(invocation.args, [
+    "--print",
+    "Implement the assignment",
+    "--model",
+    "Gemini 3.1 Pro (High)",
+    "--agent",
+    "reviewer",
+    "--conversation",
+    "agy-conversation",
+    "--mode",
+    "plan"
+  ]);
+});
+
 test("provider parsing is case insensitive and rejects unknown providers", () => {
   assert.equal(parseAgentProvider("OpenCode"), "opencode");
+  assert.equal(parseAgentProvider("Antigravity"), "antigravity");
   assert.throws(() => parseAgentProvider("unknown"), /Invalid agent provider/);
 });

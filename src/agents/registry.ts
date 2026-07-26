@@ -1,10 +1,16 @@
-import { ClaudeAdapter, CodexAdapter, OpenCodeAdapter } from "./adapters.js";
+import {
+  AntigravityAdapter,
+  ClaudeAdapter,
+  CodexAdapter,
+  OpenCodeAdapter
+} from "./adapters.js";
 import { AGENT_PROVIDERS, type AgentAdapter, type AgentProvider } from "./types.js";
 
 const adapters: Record<AgentProvider, AgentAdapter> = {
   claude: new ClaudeAdapter(),
   codex: new CodexAdapter(),
-  opencode: new OpenCodeAdapter()
+  opencode: new OpenCodeAdapter(),
+  antigravity: new AntigravityAdapter()
 };
 
 export function parseAgentProvider(value: string): AgentProvider {

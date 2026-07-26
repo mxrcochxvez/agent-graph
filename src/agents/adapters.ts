@@ -53,6 +53,20 @@ export function buildOpenCodeInvocation(
   return { command, args };
 }
 
+export function buildAntigravityInvocation(
+  request: AgentRunRequest,
+  command = commandFromEnvironment("AGENT_GRAPH_ANTIGRAVITY_COMMAND", "agy")
+): CommandInvocation {
+  const args = ["--print", request.prompt];
+
+  if (request.model) args.push("--model", request.model);
+  if (request.agent) args.push("--agent", request.agent);
+  if (request.sessionId) args.push("--conversation", request.sessionId);
+  if (request.mode === "plan") args.push("--mode", "plan");
+
+  return { command, args };
+}
+
 abstract class CliAgentAdapter implements AgentAdapter {
   abstract readonly name: AgentAdapter["name"];
 
@@ -92,5 +106,13 @@ export class OpenCodeAdapter extends CliAgentAdapter {
 
   protected invocation(request: AgentRunRequest): CommandInvocation {
     return buildOpenCodeInvocation(request);
+  }
+}
+
+export class AntigravityAdapter extends CliAgentAdapter {
+  readonly name = "antigravity" as const;
+
+  protected invocation(request: AgentRunRequest): CommandInvocation {
+    return buildAntigravityInvocation(request);
   }
 }
