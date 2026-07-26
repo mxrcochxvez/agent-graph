@@ -4,7 +4,7 @@
   "description": "Portable software-engineering assignment graph for MCP-compatible coding agents",
   "type": "module",
   "bin": {
-    "agentctl": "dist/cli.js"
+    "agentctl": "dist/src/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
