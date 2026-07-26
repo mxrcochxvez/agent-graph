@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "agent-graph": {
+      "type": "stdio",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "${CLAUDE_PROJECT_DIR:-.}",
+        "run",
+        "mcp"
+      ],
+      "env": {
+        "AGENT_GRAPH_STATE_DIR": "${CLAUDE_PROJECT_DIR:-.}/.agent/state"
+      }
+    }
+  }
+}
