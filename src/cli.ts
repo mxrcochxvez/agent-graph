@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { listAgentProviders, parseAgentProvider } from "./agents/registry.js";
+import { AGENT_MODES, type AgentMode } from "./agents/types.js";
+import { runAssignmentAgent } from "./runner.js";
 import { createAssignment, getAssignment, listAssignments } from "./store.js";
 import {
   addAcceptanceCriterion,
@@ -50,6 +53,23 @@ function parseNode(value: string | undefined): WorkflowNode {
   return node as WorkflowNode;
 }
 
+function parseAgentMode(value: string | undefined): AgentMode | undefined {
+  if (!value) return undefined;
+  if (!AGENT_MODES.includes(value as AgentMode)) {
+    throw new Error(`Invalid agent mode: ${value}. Expected one of: ${AGENT_MODES.join(", ")}`);
+  }
+  return value as AgentMode;
+}
+
+function parseTimeout(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const timeout = Number(value);
+  if (!Number.isSafeInteger(timeout) || timeout <= 0) {
+    throw new Error("Timeout must be a positive integer in milliseconds.");
+  }
+  return timeout;
+}
+
 function parseVerificationStatus(value: string | undefined): VerificationStatus {
   const status = requireValue(value, "verification status");
   if (!VERIFICATION_STATUSES.includes(status as VerificationStatus)) {
@@ -76,6 +96,10 @@ function usage(): string {
   review <id> <summary>
   deliver <id> <summary>
   finish <id>
+  providers
+  run <id> <claude|codex|opencode> [--prompt <text>] [--cwd <path>]
+      [--mode <plan|implement|review>] [--model <model>] [--agent <name>]
+      [--attach <opencode-url>] [--session <id>] [--timeout <milliseconds>]
 `;
 }
 
@@ -162,6 +186,40 @@ async function main(): Promise<void> {
     }
     case "finish": {
       print(await advanceAssignment(requireValue(id, "assignment ID"), "complete"));
+      return;
+    }
+    case "providers": {
+      print(await listAgentProviders());
+      return;
+    }
+    case "run": {
+      const assignmentId = requireValue(id, "assignment ID");
+      const provider = parseAgentProvider(requireValue(rest[0], "agent provider"));
+      const options = rest.slice(1);
+      const result = await runAssignmentAgent(
+        {
+          id: assignmentId,
+          provider,
+          prompt: flagValue(options, "--prompt"),
+          cwd: flagValue(options, "--cwd"),
+          mode: parseAgentMode(flagValue(options, "--mode")),
+          model: flagValue(options, "--model"),
+          agent: flagValue(options, "--agent"),
+          serverUrl: flagValue(options, "--attach"),
+          sessionId: flagValue(options, "--session"),
+          timeoutMs: parseTimeout(flagValue(options, "--timeout"))
+        },
+        (event) => {
+          if (event.type === "started") {
+            process.stderr.write(`[${event.provider}] started ${event.command}\n`);
+          } else if (event.type === "stdout" || event.type === "stderr") {
+            process.stderr.write(event.data);
+          }
+        }
+      );
+
+      print({ assignmentId, result });
+      if (!result.success) process.exitCode = result.exitCode ?? 1;
       return;
     }
     case "help":
