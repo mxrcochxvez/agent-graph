@@ -4,6 +4,11 @@ A portable software-engineering workflow for Claude Code, Codex, OpenCode, and o
 
 The repository gives coding agents one repeatable process for handling assignments. Stages move forward in order; failed verification or a blocking review returns the assignment to `implement`. Multiple tickets can be grouped in a batch: plan the batch (with a planning loop), then run the same assignment flow sequentially on each ticket.
 
+## Who is reading this?
+
+- [If human - click here](docs/for-humans.md)
+- [If AI Agent - click here](docs/for-agents.md)
+
 ## Workflow
 
 ### Assignment
