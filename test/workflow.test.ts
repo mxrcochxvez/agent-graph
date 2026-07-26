@@ -9,6 +9,7 @@ import {
   addAcceptanceCriterion,
   advanceAssignment,
   canTransition,
+  recordAgentRun,
   recordDelivery,
   recordReview,
   recordVerification
@@ -27,6 +28,17 @@ test("an assignment requires evidence before completion", { concurrency: false }
 
   try {
     await createAssignment({ id: "ENG-1", type: "feature", summary: "Test workflow" });
+    const withAgentRun = await recordAgentRun("ENG-1", {
+      provider: "opencode",
+      mode: "implement",
+      success: true,
+      exitCode: 0,
+      startedAt: "2026-07-26T20:00:00.000Z",
+      finishedAt: "2026-07-26T20:01:00.000Z",
+      outputSummary: "Implemented the requested change"
+    });
+    assert.equal(withAgentRun.agentRuns?.[0]?.provider, "opencode");
+
     await advanceAssignment("ENG-1", "classify");
     await advanceAssignment("ENG-1", "context");
     await advanceAssignment("ENG-1", "outcome");
