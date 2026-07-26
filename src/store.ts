@@ -47,6 +47,7 @@ export async function createAssignment(input: StartAssignmentInput): Promise<Ass
     assumptions: [],
     notes: [],
     verification: {},
+    agentRuns: [],
     createdAt: now,
     updatedAt: now,
     history: [{ to: "intake", at: now, note: "Assignment created" }]
